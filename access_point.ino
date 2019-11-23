@@ -1,6 +1,3 @@
-
-
-
   char INDEX_HTML[] =
   "<!DOCTYPE HTML>"
   "<html>"
@@ -29,7 +26,8 @@
   "<INPUT type=\"submit\" value=\"Save Configuration\">"
   "</div>"
   "</FORM>"
-  "<div style='display:flex; flex-direction: column'>"
+  
+  "<div style='display:flex; flex-direction: column; margin-top: 30px'>"
   "<div style='display:flex; flex-direction:row'>"
   "<div style='flex:1'>"
   "SSID"
@@ -41,6 +39,7 @@
   ;
 
   char END_HTML[] =
+  
   "</div>"
   "</div>"
   "</body>"
@@ -48,13 +47,14 @@
   ;
 
 
-
-
 void access_point() {
   Serial.println();
   Serial.print("Configuring access point...");
   Serial.print("Setting soft-AP configuration ... ");
-  //WiFi.softAPConfig(ap_local_IP, ap_gateway, ap_subnet);
+  IPAddress local_IP(192,168,100,100);
+  IPAddress gateway(192,168,100,1);
+  IPAddress subnet(255,255,255,0);
+  WiFi.softAPConfig(local_IP, gateway, subnet);
   Serial.print("Setting soft-AP ... ");
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ap_ssid, ap_password);
@@ -75,18 +75,8 @@ void access_point() {
 }
 
 void handleSubmit() { //dispaly values and write to memmory
-  String response = "<p>The ssid is ";
-  response += server.arg("ssid");
-  response += "<br>";
-  response += "And the password is ";
-  response += server.arg("Password");
-  response += "<br>";
-  response += "And the IP Address is ";
-  response += server.arg("IP");
-  response += "</P><BR>";
-  response += "<H2><a href=\"/\">go home</a></H2><br>";
 
-  server.send(200, "text/html", response);
+  server.send(200, "text/html", "");
   //calling function that writes data to memory
   write_to_memory(String(server.arg("ssid")), String(server.arg("Password")));
 }
@@ -97,6 +87,7 @@ void handleSubmit() { //dispaly values and write to memmory
 */
 void write_to_memory(String new_ssid, String new_password) {
   EEPROM.begin(512);//Starting and setting size of the EEPROM
+  
   int _size = new_ssid.length();
   for (int i = 0; i < _size; i++)
   {
@@ -105,6 +96,7 @@ void write_to_memory(String new_ssid, String new_password) {
   EEPROM.write(0 + _size, '\0'); //Add termination null character for String Data
 
   EEPROM.commit();
+  
   _size = new_password.length();
   for (int i = 0; i < _size; i++)
   {
@@ -112,6 +104,7 @@ void write_to_memory(String new_ssid, String new_password) {
   }
   EEPROM.write(100 + _size, '\0'); //Add termination null character for String Data
   EEPROM.commit();
+  
   WiFi.disconnect();
   ESP.restart();
 }
@@ -144,12 +137,13 @@ void scan_wifi_networks() {
       Serial.print(": ");
       Serial.print(WiFi.SSID(i));
       networks += 
-      "<div style='display:flex; flex-direction:row'>"
+      "<div style='display:flex; flex-direction:row; margin-top: 10px'>"
       "<div style='flex:1'>"
       + WiFi.SSID(i) + 
       "</div>"
       "<div style='flex:1; text-align:right'>"
       + WiFi.RSSI(i) +
+      "</div>"
       "</div>"
       ;
       Serial.print(" (");

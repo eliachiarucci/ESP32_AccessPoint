@@ -11,8 +11,8 @@ const char* ap_ssid = "remote-key";
 const char* ap_password = "testtesttest";
 bool already_pressed = false;
 bool connected = false;
-
 ESP8266WebServer server(80);
+
 
 const int led = 2;
 
@@ -38,7 +38,7 @@ void handleNotFound() {
   server.send(404, "text/plain", message);
   digitalWrite(led, 0);
 }
-const int buttonPin = 4; 
+const int buttonPin = 4;
 void setup(void) {
   
   //eeprom_reset();
@@ -102,14 +102,17 @@ void establish_connection() {
     access_point();
   }
 }
-int buttonState = 0; 
+int buttonState = 0;
 void loop(void) {
   server.handleClient();
   MDNS.update();
   buttonState = digitalRead(buttonPin);
   if (buttonState == HIGH) {
     // turn LED on:
-    if(already_pressed) {} else {already_pressed = true; eeprom_reset();}
+    if (already_pressed) {} else {
+      already_pressed = true;
+      eeprom_reset();
+    }
     Serial.println("RESET");
     digitalWrite(led, HIGH);
   } else {
