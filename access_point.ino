@@ -1,31 +1,51 @@
 
-//Creating the input form
-const char INDEX_HTML[] =
+
+
+  char INDEX_HTML[] =
   "<!DOCTYPE HTML>"
   "<html>"
   "<head>"
   "<meta content=\"text/html; charset=ISO-8859-1\""
   " http-equiv=\"content-type\">"
   "<meta name = \"viewport\" content = \"width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0\">"
-  "<title>ESP8266 Web Form Demo</title>"
+  "<title>Remote-Key Control</title>"
   "<style>"
-  "\"body { background-color: #808080; font-family: Arial, Helvetica, Sans-Serif; Color: #000000; }\""
+  "body { background-color: #aaffff; font-family: Arial, Helvetica, Sans-Serif; Color: #000000; }"
   "</style>"
   "</head>"
   "<body>"
   "<div style='display:flex; flex-direction: column; justify-content: center; position: absolute; top:50%; left:50%; transform: translate(-50%,-50%)'>"
-  "<h1>ESP8266 Web Form Demo</h1>"
+  "<h2>Remote-Key Control</h2>"
   "<FORM action=\"/\" method=\"post\">"
-  "<P>"
-  "<label>ssid:&nbsp;</label>"
-  "<input maxlength=\"30\" name=\"ssid\"><br>"
-  "<label>Password:&nbsp;</label><input maxlength=\"30\" name=\"Password\"><br>"
-  "<INPUT type=\"submit\" value=\"Send\"> <INPUT type=\"reset\">"
-  "</P>"
+  "<div style='display:flex; flex-direction: column; height: 100px; justify-content: space-around'>"
+  "<div style='display:flex; flex-direction: row'>"
+  "<label style='flex:1'>SSID:</label>"
+  "<input style='flex:1' maxlength=\"30\" name=\"ssid\"><br>"
+  "</div>"
+  "<div style='display:flex; flex-direction: row'>"
+  "<label style='flex:1'>Password:</label>"
+  "<input style='flex:1' maxlength=\"30\" name=\"Password\"><br>"
+  "</div>"
+  "<INPUT type=\"submit\" value=\"Save Configuration\">"
+  "</div>"
   "</FORM>"
+  "<div style='display:flex; flex-direction: column'>"
+  "<div style='display:flex; flex-direction:row'>"
+  "<div style='flex:1'>"
+  "SSID"
+  "</div>"
+  "<div style='flex:1; text-align:right'>"
+  "db"
+  "</div>"
+  "</div>"
+  ;
+
+  char END_HTML[] =
+  "</div>"
   "</div>"
   "</body>"
-  "</html>";
+  "</html>"
+  ;
 
 
 
@@ -101,6 +121,55 @@ void handle_ap_Root() {
     handleSubmit();
   }
   else {//Redisplay the form
-    server.send(200, "text/html", INDEX_HTML);
+    scan_wifi_networks();
+    
   }
 }
+
+void scan_wifi_networks() {
+  Serial.println("scan start");
+
+  // WiFi.scanNetworks will return the number of networks found
+  int n = WiFi.scanNetworks();
+  Serial.println("scan done");
+  String networks;
+  if (n == 0) {
+    Serial.println("no networks found");
+  } else {
+    Serial.print(n);
+    Serial.println(" networks found");
+    for (int i = 0; i < n; ++i) {
+      // Print SSID and RSSI for each network found
+      Serial.print(i + 1);
+      Serial.print(": ");
+      Serial.print(WiFi.SSID(i));
+      networks += 
+      "<div style='display:flex; flex-direction:row'>"
+      "<div style='flex:1'>"
+      + WiFi.SSID(i) + 
+      "</div>"
+      "<div style='flex:1; text-align:right'>"
+      + WiFi.RSSI(i) +
+      "</div>"
+      ;
+      Serial.print(" (");
+      Serial.print(WiFi.RSSI(i));
+      Serial.print(")");
+      Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*");
+      delay(10);
+    }
+    
+  }
+  Serial.println("");
+  //Serial.println(networks);
+  //strcat(INDEX_HTML, END_HTML);
+  char FINAL_HTML[2048];
+  strcpy(FINAL_HTML, INDEX_HTML);
+  strcat(FINAL_HTML, networks.c_str());
+  strcat(FINAL_HTML, END_HTML);
+  Serial.println(FINAL_HTML);
+  server.send(200, "text/html", FINAL_HTML);
+  // Wait a bit before scanning again
+  
+  
+  }

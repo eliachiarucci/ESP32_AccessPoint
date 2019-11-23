@@ -7,7 +7,7 @@
 
 String ssid = "";
 String password = "";
-const char* ap_ssid = "morse-keyer";
+const char* ap_ssid = "remote-key";
 const char* ap_password = "testtesttest";
 bool already_pressed = false;
 bool connected = false;
