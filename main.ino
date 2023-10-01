@@ -13,7 +13,6 @@ bool already_pressed = false;
 bool connected = false;
 ESP8266WebServer server(80);
 
-
 const int led = 2;
 
 void handleRoot() {
@@ -38,12 +37,11 @@ void handleNotFound() {
   server.send(404, "text/plain", message);
   digitalWrite(led, 0);
 }
-const int buttonPin = 4;
+const int buttonPin = 0;
 void setup(void) {
-  
+  Serial.begin(9600);
   //eeprom_reset();
   establish_connection();
-
 }
 
 void establish_connection() {
@@ -51,7 +49,6 @@ void establish_connection() {
   uint8 autoConnect = 0;
   WiFi.setAutoConnect(autoConnect);
   //eeprom_reset();
-  Serial.begin(115200);
   Serial.println();
   Serial.println(ssid);
   Serial.println(password);
@@ -86,7 +83,7 @@ void establish_connection() {
 
       server.on("/", handleRoot);
 
-      server.on("/inline", []() {
+      server.on("/test", []() {
         server.send(200, "text/plain", "this works as well");
       });
 
@@ -104,10 +101,13 @@ void establish_connection() {
 }
 int buttonState = 0;
 void loop(void) {
+
+  buttonState = digitalRead(buttonPin);
+
   server.handleClient();
   MDNS.update();
-  buttonState = digitalRead(buttonPin);
-  if (buttonState == HIGH) {
+
+  if (buttonState == LOW) { // This can be either LOW or HIGH, might go on reset loop if wrong.
     // turn LED on:
     if (already_pressed) {} else {
       already_pressed = true;
