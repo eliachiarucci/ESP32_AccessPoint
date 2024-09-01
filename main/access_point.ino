@@ -1,4 +1,4 @@
-  char INDEX_HTML[] =
+char INDEX_HTML[] =
   "<!DOCTYPE HTML>"
   "<html>"
   "<head>"
@@ -77,7 +77,7 @@ void handleSubmit() { //display values and write to memmory
   write_to_memory(String(server.arg("ssid")), String(server.arg("Password")));
 }
 //Write data to memory
-/**
+/*
    We prepare the data strings by adding the 'end of line' symbol. I decided to use ";".
    Then we pass it off to the write_EEPROM function to actually write it to memmory.
 */
@@ -144,7 +144,7 @@ void scan_wifi_networks() {
       Serial.print(" (");
       Serial.print(WiFi.RSSI(i));
       Serial.print(")");
-      Serial.println((WiFi.encryptionType(i) == ENC_TYPE_NONE) ? " " : "*");
+      Serial.println((WiFi.encryptionType(i) == WIFI_AUTH_OPEN) ? " " : "*");
       delay(10);
     }
     
@@ -160,3 +160,4 @@ void scan_wifi_networks() {
   server.send(200, "text/html", FINAL_HTML);
   // Wait a bit before scanning again
   }
+ 

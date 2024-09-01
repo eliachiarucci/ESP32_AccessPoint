@@ -1,8 +1,8 @@
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
 #include <EEPROM.h>
+#include <WebServer.h>
+#include <ESPmDNS.h>
 
 
 String ssid = "";
@@ -11,43 +11,21 @@ const char* ap_ssid = "remote-key";
 const char* ap_password = "testtesttest";
 bool already_pressed = false;
 bool connected = false;
-ESP8266WebServer server(80);
+WebServer server(80);
 
 const int led = 2;
 
-void handleRoot() {
-  digitalWrite(led, 1);
-  server.send(200, "text/plain", "hello from esp8266!");
-  digitalWrite(led, 0);
-}
-
-void handleNotFound() {
-  digitalWrite(led, 1);
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET) ? "GET" : "POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
-}
 const int buttonPin = 0;
 void setup(void) {
-  Serial.begin(9600);
+  Serial.begin(115200);
   //eeprom_reset();
   establish_connection();
 }
 
 void establish_connection() {
   eeprom();
-  uint8 autoConnect = 0;
-  WiFi.setAutoConnect(autoConnect);
+  uint8_t autoConnect = 0;
+  WiFi.setAutoReconnect(autoConnect);
   //eeprom_reset();
   Serial.println();
   Serial.println(ssid);
@@ -81,13 +59,7 @@ void establish_connection() {
         Serial.println("MDNS responder started");
       }
 
-      server.on("/", handleRoot);
-
-      server.on("/test", []() {
-        server.send(200, "text/plain", "this works as well");
-      });
-
-      server.onNotFound(handleNotFound);
+      routes();
 
       server.begin();
       Serial.println("HTTP server started");
@@ -101,14 +73,13 @@ void establish_connection() {
 }
 int buttonState = 0;
 void loop(void) {
-
   buttonState = digitalRead(buttonPin);
 
   server.handleClient();
-  MDNS.update();
-
-  if (buttonState == LOW) { // This can be either LOW or HIGH, might go on reset loop if wrong.
+  delay(10);
+  if (buttonState == HIGH) { // This can be either LOW or HIGH, might go on reset loop if wrong.
     // turn LED on:
+    Serial.println("RESTARTING BECAUSE BUTTON PRESSED");
     if (already_pressed) {} else {
       already_pressed = true;
       eeprom_reset();
