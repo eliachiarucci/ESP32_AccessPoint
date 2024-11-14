@@ -7,7 +7,7 @@
 
 String ssid = "";
 String password = "";
-const char* ap_ssid = "remote-key";
+const char* ap_ssid = "esp32-ap";
 const char* ap_password = "testtesttest";
 bool already_pressed = false;
 bool connected = false;
@@ -15,9 +15,14 @@ WebServer server(80);
 
 const int led = 2;
 
-const int buttonPin = 0;
+const int buttonPin = GPIO_NUM_0;
 void setup(void) {
   Serial.begin(115200);
+  pinMode(0, INPUT);
+  pinMode(2, OUTPUT);
+  pinMode(13, OUTPUT);
+  digitalWrite(13, HIGH);
+
   //eeprom_reset();
   establish_connection();
 }
@@ -54,6 +59,7 @@ void establish_connection() {
       Serial.println(ssid);
       Serial.print("IP address: ");
       Serial.println(WiFi.localIP());
+      digitalWrite(led, HIGH);
 
       if (MDNS.begin("esp8266")) {
         Serial.println("MDNS responder started");
@@ -69,15 +75,15 @@ void establish_connection() {
 
   } else {
     access_point();
+    digitalWrite(led, HIGH);
   }
 }
 int buttonState = 0;
 void loop(void) {
   buttonState = digitalRead(buttonPin);
-
   server.handleClient();
   delay(10);
-  if (buttonState == HIGH) { // This can be either LOW or HIGH, might go on reset loop if wrong.
+  if (buttonState == LOW) { // This can be either LOW or HIGH, might go on reset loop if wrong.
     // turn LED on:
     Serial.println("RESTARTING BECAUSE BUTTON PRESSED");
     if (already_pressed) {} else {
@@ -87,8 +93,7 @@ void loop(void) {
     Serial.println("RESET");
     digitalWrite(led, HIGH);
   } else {
-    // turn LED off:
     already_pressed = false;
-    digitalWrite(led, LOW);
+    //digitalWrite(led, LOW);
   }
 }
