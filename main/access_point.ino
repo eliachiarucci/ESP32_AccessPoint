@@ -82,24 +82,8 @@ void handleSubmit() { //display values and write to memmory
    Then we pass it off to the write_EEPROM function to actually write it to memmory.
 */
 void write_to_memory(String new_ssid, String new_password) {
-  EEPROM.begin(512); //Starting and setting size of the EEPROM
-  
-  int _size = new_ssid.length();
-  for (int i = 0; i < _size; i++)
-  {
-    EEPROM.write(0 + i, new_ssid[i]);
-  }
-  EEPROM.write(0 + _size, '\0'); //Add termination null character for String Data
-
-  EEPROM.commit();
-  
-  _size = new_password.length();
-  for (int i = 0; i < _size; i++)
-  {
-    EEPROM.write(100 + i, new_password[i]);
-  }
-  EEPROM.write(100 + _size, '\0'); //Add termination null character for String Data
-  EEPROM.commit();
+  save_ssid(new_ssid);
+  save_pwd(new_password);
   
   WiFi.disconnect();
   ESP.restart();

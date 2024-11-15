@@ -1,12 +1,11 @@
 #include <WiFi.h>
 #include <WiFiClient.h>
-#include <EEPROM.h>
 #include <WebServer.h>
 #include <ESPmDNS.h>
+#include <Preferences.h>
 
-
-String ssid = "";
-String password = "";
+String ssid;
+String password;
 const char* ap_ssid = "esp32-ap";
 const char* ap_password = "testtesttest";
 bool already_pressed = false;
@@ -18,24 +17,19 @@ const int led = 2;
 const int buttonPin = GPIO_NUM_0;
 void setup(void) {
   Serial.begin(115200);
-  pinMode(0, INPUT);
-  pinMode(2, OUTPUT);
-  pinMode(13, OUTPUT);
-  digitalWrite(13, HIGH);
-
-  //eeprom_reset();
   establish_connection();
 }
 
 void establish_connection() {
-  eeprom();
-  uint8_t autoConnect = 0;
+  ssid = get_saved_ssid();
+  password = get_saved_pwd();
+  bool autoConnect = true;
   WiFi.setAutoReconnect(autoConnect);
-  //eeprom_reset();
+  
   Serial.println();
   Serial.println(ssid);
   Serial.println(password);
-  if (ssid != "" || password != "") {
+  if (ssid != "" && password != "") {
     pinMode(led, OUTPUT);
     digitalWrite(led, 0);
     WiFi.mode(WIFI_STA);
@@ -61,7 +55,7 @@ void establish_connection() {
       Serial.println(WiFi.localIP());
       digitalWrite(led, HIGH);
 
-      if (MDNS.begin("esp8266")) {
+      if (MDNS.begin("esp32")) {
         Serial.println("MDNS responder started");
       }
 
@@ -79,16 +73,19 @@ void establish_connection() {
   }
 }
 int buttonState = 0;
+
 void loop(void) {
-  buttonState = digitalRead(buttonPin);
+  //buttonState = digitalRead(buttonPin);
   server.handleClient();
   delay(10);
-  if (buttonState == LOW) { // This can be either LOW or HIGH, might go on reset loop if wrong.
+  //Serial.println(buttonState);
+  if (buttonState == HIGH) {  // This can be either LOW or HIGH, might go on reset loop if wrong.
     // turn LED on:
     Serial.println("RESTARTING BECAUSE BUTTON PRESSED");
-    if (already_pressed) {} else {
+    if (already_pressed) {
+    } else {
       already_pressed = true;
-      eeprom_reset();
+      storage_reset();
     }
     Serial.println("RESET");
     digitalWrite(led, HIGH);

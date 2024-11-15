@@ -1,47 +1,37 @@
-void eeprom() {
-  EEPROM.begin(512);
+Preferences preferences;
 
-  check_ssid();
-  check_passwd();
-  
-  EEPROM.commit();
+#define READ_WRITE false
+#define READ_ONLY true
 
+void save_ssid(String ssid) {
+  preferences.begin("WiFi-Credentials", READ_WRITE);  // "my-app" is the namespace, 'false' for read/write mode
+  preferences.putString("ssid", ssid);
+  preferences.end();
 }
 
-void check_ssid() {
-
-  char add = 0;
-  char data[100]; //Max 100 Bytes
-  int len = 0;
-  unsigned char k;
-  k = EEPROM.read(add);
-  while (k != '\0' && len < 500) //Read until null character
-  {
-    k = EEPROM.read(add + len);
-    data[len] = k;
-    len++;
-  }
-  data[len] = '\0';
-  Serial.println(data);
-  ssid = data;
-
+void save_pwd(String pwd) {
+  preferences.begin("WiFi-Credentials", READ_WRITE);  // "my-app" is the namespace, 'false' for read/write mode
+  preferences.putString("pwd", pwd);
+  preferences.end();
 }
 
-void check_passwd() {
+void storage_reset() {
+  preferences.begin("WiFi-Credentials", READ_WRITE);  // "my-app" is the namespace, 'false' for read/write mode
+  preferences.clear();
+  preferences.end();
+}
 
-  char add = 100;
-  char data[100]; //Max 100 Bytes
-  int len = 0;
-  unsigned char k;
-  k = EEPROM.read(add);
-  while (k != '\0' && len < 500) //Read until null character
-  {
-    k = EEPROM.read(add + len);
-    data[len] = k;
-    len++;
-  }
-  data[len] = '\0';
-  Serial.println(data);
-  password = data;
 
+String get_saved_ssid() {
+  preferences.begin("WiFi-Credentials", READ_ONLY);  // "my-app" is the namespace, 'false' for read/write mode
+  String ssid = preferences.getString("ssid");
+  preferences.end();
+  return ssid;
+}
+
+String get_saved_pwd() {
+  preferences.begin("WiFi-Credentials", READ_ONLY);  // "my-app" is the namespace, 'false' for read/write mode
+  String pwd = preferences.getString("pwd");
+  preferences.end();
+  return pwd;
 }
