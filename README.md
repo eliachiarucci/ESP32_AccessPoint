@@ -1,11 +1,13 @@
 # ESP32 Access point template
 
-This library is a template for connecting you Arduino NodeMCU to the wi-fi network without having to hard-code it.
+This repository contains a template for connecting you ESP32 Devkit to your wi-fi network via a user interface.
+The board will first go into Access Point (AP) mode and print its IP address on the serial console.
+Steps to connect the ESP32 board to your WiFi connection:
+- Connect to the ESP32 wifi network (default password: testtesttest).
+- Open your browser and navigate to the IP address printed in the serial console.
+- Select SSID and input WiFi password.
+- The ESP32 will reboot and connect to the WiFi, the new IP address of board will be shown in the serial console.
+
+By clicking the BOOT button on the DevKit, the saved WiFi credentials will be cleared and the process can be started again.
 
 More routes can be added to the routes.ino file, or by simply adding additional files.
-
-When reset, the EEPROM will be empty and the NodeMCU will go into Access Point mode, from there, an interface is available where the user can choose their wi-fi network, after the password is inserted, the wi-fi credentials are stored in the EEPROM and the NodeMCU will reboot itself into working mode connected to the network.
-
-ESP32 Drivers:
-For MacOS (arm): https://github.com/WCHSoftGroup/ch34xser_macos
-For Windows: [CP210x_Universal_Windows_Driver](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers?tab=downloads)
