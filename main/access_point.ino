@@ -136,7 +136,7 @@ void scan_wifi_networks() {
   Serial.println("");
   //Serial.println(networks);
   //strcat(INDEX_HTML, END_HTML);
-  char FINAL_HTML[2048];
+  char FINAL_HTML[4096];
   strcpy(FINAL_HTML, INDEX_HTML);
   strcat(FINAL_HTML, networks.c_str());
   strcat(FINAL_HTML, END_HTML);

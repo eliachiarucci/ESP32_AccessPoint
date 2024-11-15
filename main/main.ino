@@ -12,11 +12,12 @@ bool already_pressed = false;
 bool connected = false;
 WebServer server(80);
 
-const int led = 2;
+const int led = 8;
+const int buttonPin = 9;
 
-const int buttonPin = GPIO_NUM_0;
 void setup(void) {
   Serial.begin(115200);
+  pinMode(buttonPin, INPUT_PULLUP);
   establish_connection();
 }
 
@@ -72,20 +73,21 @@ void establish_connection() {
     digitalWrite(led, HIGH);
   }
 }
-int buttonState = 0;
+
 
 void loop(void) {
-  //buttonState = digitalRead(buttonPin);
+  int buttonState = digitalRead(buttonPin);
   server.handleClient();
-  delay(10);
-  //Serial.println(buttonState);
-  if (buttonState == HIGH) {  // This can be either LOW or HIGH, might go on reset loop if wrong.
+  delay(100);
+  if (buttonState == LOW) { 
     // turn LED on:
     Serial.println("RESTARTING BECAUSE BUTTON PRESSED");
     if (already_pressed) {
     } else {
       already_pressed = true;
       storage_reset();
+      WiFi.disconnect();
+      ESP.restart();
     }
     Serial.println("RESET");
     digitalWrite(led, HIGH);
